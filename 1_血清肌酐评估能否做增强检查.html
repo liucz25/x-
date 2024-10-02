@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>根据血清肌酐计算肌酐清除率，用于评估能否做增强检查</title>
+    <style>
+        .red {
+            color: red;
+        }
+
+        .green {
+            color: green;
+        }
+
+        .yellow {
+            color: yellow;
+        }
+    </style>
+    <!-- <link href="./bootstrap.min.css" rel="stylesheet"> -->
+    <style>
+        ul li {
+            list-style: none;
+        }
+
+        .info-item label {
+            display: inline-block;
+            width: 100px;
+            height: 30px;
+            line-height: 30px;
+            vertical-align: middle;
+            text-align: justify;
+            text-align-last: justify;
+        }
+
+        /* label::after{
+            content: " ";
+            display: inline-block;
+            width: 100%;
+        } */
+        .xiao {
+            /* display: block; */
+            width: 50px !important;
+            height: 30px !important;
+            line-height: 30px !important;
+            color: blue;
+            vertical-align: middle !important;
+            text-align: left !important;
+            text-align-last: left !important;
+        }
+
+        .content {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            /* 或者具体宽度 */
+        }
+        .content2 {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            /* 或者具体宽度 */
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    var radios = document.querySelectorAll('.gender');
+    radios.forEach(function (radio) {
+        radio.addEventListener('change', jisuan)
+    });
+    var scr = document.getElementById("scr")
+    var age = document.getElementById("age")
+    var height = document.getElementById("height")
+    var heifei = document.getElementById("heifei")
+    scr.addEventListener('change', jisuan)
+    age.addEventListener('change', jisuan)
+    height.addEventListener('change', jisuan)
+    heifei.addEventListener('change', jisuan)  
+    jisuan()
+});
+// btn=document.getElementById("btn")
+// btn.addEventListener('click',jisuan)
+
+function jisuan() {
+    // console.log("ok")
+    var radios = document.querySelectorAll('.gender');
+    for (var i = 0; i < radios.length; i++) {
+        if (radios[i].checked) {
+            gender = radios[i].value
+        }
+    }
+    var scr = document.getElementById("scr").value
+    var age = document.getElementById("age").value
+    var height = document.getElementById("height").value //儿童
+    var heifei = document.getElementById("heifei")//黑人，非裔美国人种
+    if (heifei.checked) {
+        hei = true
+    } else (hei = false)
+    // console.log("hei:",hei)
+    // console.log(scr, age, gender)
+    // console.log(heifei)
+    result = _jisuan(gender, scr, age, height, heifei = hei)
+    // console.log(result)
+    var element = document.getElementById("result");
+    element.innerHTML = result
+    changeColor()
+}
+function _jisuan(gender, scr, age, height, heifei) {
+    // console.log(gender)/
+    var a, b, c
+    var hei = 1
+    // console.log("age:", age)
+    if (age < 18) {//儿童
+        console.log("儿童",Number(height) , Number(scr))
+        showHeight()
+        result = 36.5 * Number(height) / Number(scr)
+        console.log("儿童", result)
+    } else {
+        hiddenHeight()
+        if (heifei) {
+            hei = 1.159
+        }
+        if (gender == 'male') {
+            a = 141;
+            b = 80;
+            if (scr > 80) {
+                c = -1.209
+            } else {
+                c = -0.411
+            }
+
+        }
+        if (gender == 'female') {
+            a = 144;
+            b = 62;
+            if (scr > 62) {
+                c = -1.209
+            } else {
+                c = -0.329
+            }
+        }
+        result = __jisuan(a, scr, b, c, age, hei)
+    }
+    return result
+
+}
+
+function __jisuan(a, scr, b, c, age, hei) {
+    var base = 0.993
+    // console.log(a, Number(scr), b, c, Number(age), hei)
+    result = a * Math.pow(Number(scr) / b, c) * Math.pow(base, Number(age)) * hei
+    // console.log(result)
+    return result
+}
+function changeColor() {
+    // console.log("ol")
+    var element = document.getElementById("result");
+    var value = parseFloat(element.innerHTML);
+    // console.log(value)
+    if (value >= 60) {
+        // console.log(90)
+        element.classList.remove("red");
+        element.classList.remove("yellow");
+        element.classList.add("green");
+    } if (60 > value && value > 30) {
+        // console.log(50)
+        element.classList.remove("green");
+        element.classList.remove("red");
+        element.classList.add("yellow");
+    } if (value <= 30) {
+        // console.log(20)
+        element.classList.remove("green");
+        element.classList.remove("yellow");
+        element.classList.add("red");
+    }
+}
+function showHeight(){
+    document.getElementById("ertong").style.display = "block";
+
+}
+function hiddenHeight(){
+    document.getElementById("ertong").style.display = "none";
+
+}
+
+    </script>
+</head>
+
+<body>
+    <div class="content">
+        <h2 class="content2">根据血清肌酐计算肌酐清除率，用于评估能否做增强检查</h2>
+        <ul class="info">
+            <li class="info-item">
+                <div>
+                    <label>性别:</label>
+                    <input type="radio" id="male" class="gender" name='gender' value="male" checked>男性
+                    <!-- <label for="male" class="xiao">男性</label> -->
+                    <input type="radio" id="female" class="gender" name='gender' value="female">女性
+                    <!-- <label for="female" class="xiao">女性</label> -->
+                </div>
+            </li>
+            <li class="info-item">
+                <div>
+                    <label>血清肌酐: </label>
+                    <input type="text" id="scr" value="233"><br>
+                </div>
+            </li>
+            <li class="info-item">
+                <div>
+                    <label>年 龄: </label>
+                    <input type="text" id="age" value="50"><br>
+                </div>
+            </li>
+            <li class="info-item">
+                <div>
+                    <input type="checkbox" id="heifei" name="heifei" value=true> <label for="heifei">非裔美国人</label>
+                </div>
+            </li>
+
+            <li class="info-item">
+                <div id="ertong">
+                    <label>儿童身高cm:</label>
+                    <input type="text" id="height" value="100">
+                </div>
+            </li>
+            <li class="info-item">
+                <div>
+                    <button id="btn" onclick="jisuan()" class="btn btn-primary">计算</button>
+                </div>
+            </li>
+            <li class="info-item">
+                <div id="result"></div>
+            </li>
+            <li class="info-item">
+                <div>
+                    <h2>计算依据</h2>
+                    <img src="./计算方法.bmp">
+                </div>
+            </li>
+
+        </ul>
+    </div>
+    <!-- <script src="script.js" defer></script> -->
+</body>
+
+</html>
